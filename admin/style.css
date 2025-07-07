@@ -1,0 +1,60 @@
+/* Tổng quan layout */
+body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.app-sidebar {
+    width: 240px;
+    background-color: #343a40; /* Màu nền đậm */
+    color: #fff;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.app-sidebar .nav-link {
+    color: #adb5bd;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: block;
+}
+
+.app-sidebar .nav-link:hover, .app-sidebar .nav-link.active {
+    background-color: #495057;
+    color: #fff;
+    border-left: 4px solid #17a2b8;
+}
+
+/* Navbar */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 240px;
+    right: 0;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    z-index: 1030;
+}
+
+/* Nội dung chính */
+.app-main {
+    margin-left: 240px; /* Đẩy nội dung sang phải để không bị đè lên sidebar */
+    margin-top: 56px; /* Chiều cao của navbar */
+    padding: 20px;
+    background-color: #f1f3f5;
+    flex: 1;
+}
+
+/* Profile Image trong Navbar */
+.navbar .user-menu img {
+    width: 35px;
+    height: 35px;
+    object-fit: cover;
+}

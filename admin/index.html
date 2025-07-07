@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <aside class="app-sidebar shadow">
+        <div class="sidebar-wrapper">
+            <h5 class="text-center text-white mb-4">Admin Panel</h5>
+            <nav>
+                <ul class="nav flex-column" id="sidebarMenu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-target="dashboard.php">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-target="products.php">
+                            <i class="bi bi-box"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-target="users.php">
+                            <i class="bi bi-people"></i> Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-target="orders.php">
+                            <i class="bi bi-cart-check"></i> Orders
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <nav class="app-header navbar navbar-expand bg-body shadow">
+        <div class="container-fluid">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="toggleSidebar"> <i class="bi bi-list"></i> </a>
+                </li>
+            </ul>
+            <a href="../homepage.php" class="btn btn-primary">
+                <i class="bi bi-house-door"></i> Return to Homepage
+            </a>
+        </div>
+    </nav>
+
+    <main class="app-main">
+        <div id="contentArea">
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Kiểm tra hash từ URL
+            const hash = window.location.hash.slice(1) || 'dashboard.php';
+            loadContent(hash);
+            
+            // Đánh dấu menu item active dựa trên hash
+            updateActiveMenu(hash);
+        });
+
+        document.querySelectorAll('#sidebarMenu a[data-target]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = this.getAttribute('data-target');
+                // Cập nhật hash trong URL
+                window.location.hash = target;
+                loadContent(target);
+                updateActiveMenu(target);
+            });
+        });
+
+        // Hàm tải nội dung
+        function loadContent(target) {
+            fetch(target)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('contentArea').innerHTML = html;
+                    // Sau khi load content, bind các event cho form
+                    setupFormHandlers();
+                })
+                .catch(err => {
+                    console.error('Error loading content:', err);
+                });
+        }
+
+        // Hàm cập nhật trạng thái active của menu
+        function updateActiveMenu(target) {
+            document.querySelectorAll('#sidebarMenu .nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-target') === target) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Thêm hàm mới để xử lý form submit
+        function setupFormHandlers() {
+            // Xử lý form submit
+            document.querySelectorAll('.ajax-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const action = this.getAttribute('action');
+
+                    fetch(action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Đóng modal nếu đang mở
+                            const modal = bootstrap.Modal.getInstance(this.closest('.modal'));
+                            if (modal) {
+                                modal.hide();
+                            }
+                            // Reload lại nội dung
+                            const currentPage = window.location.hash.slice(1) || 'dashboard.php';
+                            loadContent(currentPage);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            });
+
+            // Xử lý nút xóa
+            document.querySelectorAll('.ajax-delete').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Bạn có chắc chắn muốn xoá sản phẩm này?')) {
+                        fetch(this.href, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const currentPage = window.location.hash.slice(1) || 'dashboard.php';
+                                loadContent(currentPage);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
